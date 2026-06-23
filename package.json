@@ -28,7 +28,7 @@
     "type": "git",
     "url": "https://github.com/badchars/darknet-mcp-server.git"
   },
-  "homepage": "https://github.com/badchars/darknet-mcp-server",
+  "homepage": "https://www.npmjs.com/package/darknet-mcp-server",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "cheerio": "^1.0.0",
