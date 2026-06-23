@@ -1,0 +1,6 @@
+node_modules/
+dist/
+bun.lock
+.env
+*.tgz
+test-*.ts

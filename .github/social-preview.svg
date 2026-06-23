@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg-social" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="50%" stop-color="#1a0a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+    <!-- Accent gradient -->
+    <linearGradient id="accent-social" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="50%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <!-- Glow filters -->
+    <filter id="glow-red-social">
+      <feGaussianBlur stdDeviation="50" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-purple-social">
+      <feGaussianBlur stdDeviation="40" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="icon-glow-social">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Pill gradients -->
+    <linearGradient id="spill-red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="spill-orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="spill-purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="spill-violet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="spill-green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bg-social)"/>
+
+  <!-- Grid lines -->
+  <g stroke="#ef4444" stroke-opacity="0.04" stroke-width="1">
+    <line x1="0" y1="64" x2="1280" y2="64"/>
+    <line x1="0" y1="128" x2="1280" y2="128"/>
+    <line x1="0" y1="192" x2="1280" y2="192"/>
+    <line x1="0" y1="256" x2="1280" y2="256"/>
+    <line x1="0" y1="320" x2="1280" y2="320"/>
+    <line x1="0" y1="384" x2="1280" y2="384"/>
+    <line x1="0" y1="448" x2="1280" y2="448"/>
+    <line x1="0" y1="512" x2="1280" y2="512"/>
+    <line x1="0" y1="576" x2="1280" y2="576"/>
+    <line x1="128" y1="0" x2="128" y2="640"/>
+    <line x1="256" y1="0" x2="256" y2="640"/>
+    <line x1="384" y1="0" x2="384" y2="640"/>
+    <line x1="512" y1="0" x2="512" y2="640"/>
+    <line x1="640" y1="0" x2="640" y2="640"/>
+    <line x1="768" y1="0" x2="768" y2="640"/>
+    <line x1="896" y1="0" x2="896" y2="640"/>
+    <line x1="1024" y1="0" x2="1024" y2="640"/>
+    <line x1="1152" y1="0" x2="1152" y2="640"/>
+  </g>
+
+  <!-- Glow orbs -->
+  <circle cx="320" cy="280" r="200" fill="#ef4444" opacity="0.04"/>
+  <circle cx="320" cy="280" r="120" fill="#ef4444" opacity="0.06"/>
+  <circle cx="960" cy="320" r="180" fill="#7c3aed" opacity="0.04"/>
+  <circle cx="960" cy="320" r="100" fill="#7c3aed" opacity="0.06"/>
+  <!-- Extra subtle glow at center -->
+  <circle cx="640" cy="300" r="150" fill="#dc2626" opacity="0.02"/>
+
+  <!-- Top border accent -->
+  <rect x="0" y="0" width="1280" height="3" fill="url(#accent-social)"/>
+  <!-- Bottom border accent -->
+  <rect x="0" y="637" width="1280" height="3" fill="url(#accent-social)"/>
+
+  <!-- Shield with skull icon (larger) -->
+  <g transform="translate(640, 150)" filter="url(#icon-glow-social)">
+    <!-- Shield shape -->
+    <path d="M0,-62 L-46,-39 L-46,6 C-46,36 -16,58 0,68 C16,58 46,36 46,6 L46,-39 Z"
+          fill="none" stroke="url(#accent-social)" stroke-width="3.5" opacity="0.9"/>
+    <!-- Skull -->
+    <ellipse cx="0" cy="-14" rx="20" ry="23" fill="none" stroke="#ef4444" stroke-width="2.5" opacity="0.8"/>
+    <!-- Eyes -->
+    <ellipse cx="-8" cy="-18" rx="5" ry="6" fill="#ef4444" opacity="0.7"/>
+    <ellipse cx="8" cy="-18" rx="5" ry="6" fill="#7c3aed" opacity="0.7"/>
+    <!-- Nose -->
+    <path d="M-2.5,-6 L0,-3 L2.5,-6" fill="none" stroke="#ef4444" stroke-width="1.8" opacity="0.6"/>
+    <!-- Jaw -->
+    <path d="M-12,4 L-12,10 L12,10 L12,4" fill="none" stroke="#ef4444" stroke-width="2" opacity="0.6"/>
+    <!-- Teeth -->
+    <line x1="-6" y1="4" x2="-6" y2="10" stroke="#ef4444" stroke-width="1.5" opacity="0.5"/>
+    <line x1="0" y1="4" x2="0" y2="10" stroke="#ef4444" stroke-width="1.5" opacity="0.5"/>
+    <line x1="6" y1="4" x2="6" y2="10" stroke="#ef4444" stroke-width="1.5" opacity="0.5"/>
+  </g>
+
+  <!-- Title -->
+  <text x="640" y="278" text-anchor="middle" font-family="'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace" font-size="48" font-weight="700" fill="#ffffff" letter-spacing="-1">darknet-mcp-server</text>
+
+  <!-- Subtitle -->
+  <text x="640" y="320" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" fill="#a1a1aa" letter-spacing="0.8">Dark Web &amp; Threat Intelligence for AI Agents</text>
+
+  <!-- Accent line -->
+  <rect x="500" y="342" width="280" height="3" rx="1.5" fill="url(#accent-social)" opacity="0.6"/>
+
+  <!-- Stats pills row -->
+  <g transform="translate(640, 400)">
+    <!-- 66 Tools (red) -->
+    <g transform="translate(-340, 0)">
+      <rect x="-52" y="-17" width="104" height="34" rx="17" fill="url(#spill-red)" stroke="#ef4444" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="0" y="5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#ef4444">66 Tools</text>
+    </g>
+    <!-- 16 Sources (orange) -->
+    <g transform="translate(-172, 0)">
+      <rect x="-62" y="-17" width="124" height="34" rx="17" fill="url(#spill-orange)" stroke="#f97316" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="0" y="5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#f97316">16 Sources</text>
+    </g>
+    <!-- MCP (purple) -->
+    <g transform="translate(-10, 0)">
+      <rect x="-38" y="-17" width="76" height="34" rx="17" fill="url(#spill-purple)" stroke="#7c3aed" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="0" y="5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#7c3aed">MCP</text>
+    </g>
+    <!-- CLI (violet) -->
+    <g transform="translate(120, 0)">
+      <rect x="-32" y="-17" width="64" height="34" rx="17" fill="url(#spill-violet)" stroke="#8b5cf6" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="0" y="5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#8b5cf6">CLI</text>
+    </g>
+    <!-- Tor (green) -->
+    <g transform="translate(240, 0)">
+      <rect x="-32" y="-17" width="64" height="34" rx="17" fill="url(#spill-green)" stroke="#22c55e" stroke-opacity="0.3" stroke-width="1"/>
+      <text x="0" y="5" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#22c55e">Tor</text>
+    </g>
+  </g>
+
+  <!-- Source names -->
+  <text x="640" y="476" text-anchor="middle" font-family="'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace" font-size="14" fill="#52525b" letter-spacing="1.2">HIBP · ThreatFox · Tor · OTX · AbuseIPDB · Vulners · Blockchain · Hybrid Analysis</text>
+
+  <!-- Bottom tagline -->
+  <text x="640" y="560" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#3f3f46" letter-spacing="3">MODEL CONTEXT PROTOCOL</text>
+
+  <!-- Decorative corner dots -->
+  <circle cx="30" cy="30" r="2.5" fill="#ef4444" opacity="0.3"/>
+  <circle cx="1250" cy="30" r="2.5" fill="#7c3aed" opacity="0.3"/>
+  <circle cx="30" cy="610" r="2.5" fill="#7c3aed" opacity="0.3"/>
+  <circle cx="1250" cy="610" r="2.5" fill="#ef4444" opacity="0.3"/>
+
+  <!-- Side accent lines -->
+  <rect x="0" y="200" width="3" height="240" rx="1.5" fill="url(#accent-social)" opacity="0.15"/>
+  <rect x="1277" y="200" width="3" height="240" rx="1.5" fill="url(#accent-social)" opacity="0.15"/>
+</svg>

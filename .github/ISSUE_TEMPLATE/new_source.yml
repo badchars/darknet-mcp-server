@@ -1,0 +1,54 @@
+name: New Data Source
+description: Suggest a new intelligence data source or provider
+title: "[Source] "
+labels: ["enhancement", "new-source"]
+
+body:
+  - type: input
+    id: source-name
+    attributes:
+      label: Data source name
+      description: Name of the data source or provider.
+      placeholder: "e.g., Recorded Future, SpyCloud, LeakIX"
+    validations:
+      required: true
+
+  - type: input
+    id: api-docs
+    attributes:
+      label: API documentation URL
+      description: Link to the API docs or developer portal.
+      placeholder: "https://docs.example.com/api"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: authentication
+    attributes:
+      label: Authentication
+      description: What type of authentication does this source require?
+      options:
+        - Free
+        - Free tier
+        - Paid only
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-tools
+    attributes:
+      label: Suggested tools
+      description: What tools could be built on top of this source?
+      placeholder: |
+        - source_search: Search for ...
+        - source_lookup: Look up ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: why-valuable
+    attributes:
+      label: Why this source?
+      description: What makes this source valuable for dark web / threat intelligence?
+    validations:
+      required: true
