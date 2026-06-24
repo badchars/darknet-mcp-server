@@ -3,28 +3,34 @@ Output .github/demo.gif
 
 Set Shell "bash"
 Set FontSize 14
-Set Width 900
-Set Height 550
+Set Width 1000
+Set Height 600
 Set Theme "Catppuccin Mocha"
 Set Padding 20
-Set TypingSpeed 35ms
+Set TypingSpeed 30ms
 
-# List all tools
-Type `npx darknet-mcp-server --list`
+# Show help
+Type `npx -y darknet-mcp-server --help`
 Sleep 300ms
 Enter
-Sleep 5s
+Sleep 6s
 
-# Check Tor status
-Type `npx darknet-mcp-server --check-tor`
+# Search for a breach
+Type `npx -y darknet-mcp-server --tool breach_search '{"query":"linkedin.com"}'`
 Sleep 300ms
 Enter
-Sleep 3s
+Sleep 6s
 
-# Help
-Type `npx darknet-mcp-server --help`
+# Check ThreatFox for recent IOCs
+Type `npx -y darknet-mcp-server --tool threatfox_recent '{"limit":5}'`
 Sleep 300ms
 Enter
-Sleep 5s
+Sleep 6s
 
-Sleep 3s
+# List ransomware groups
+Type `npx -y darknet-mcp-server --tool ransomware_groups '{}'`
+Sleep 300ms
+Enter
+Sleep 6s
+
+Sleep 2s
