@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/badchars-darknet-mcp-server-badge.png)](https://mseep.ai/app/badchars-darknet-mcp-server)
+
 <p align="center">
   <strong>English</strong> |
   <a href="README.zh.md">简体中文</a> |
