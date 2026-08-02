@@ -1,5 +1,6 @@
 import net from "node:net";
 import http from "node:http";
+import https from "node:https";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import * as cheerio from "cheerio";
 import { RateLimiter } from "./rate-limiter.js";
@@ -87,22 +88,54 @@ function validateOnionUrl(url: string): void {
 
 // ─── Fetch Raw HTML from .onion ───
 
+const MAX_REDIRECTS = 5;
+
+/**
+ * Fetch a .onion URL, following redirects. Many onion services (BBC, DuckDuckGo,
+ * ...) answer plain http with a 301/302 to their https origin, so http-only
+ * clients see a redirect stub instead of the page.
+ */
 export async function fetchOnion(
   url: string,
   host = "127.0.0.1",
   port = 9050,
 ): Promise<{ html: string; statusCode: number }> {
+  let current = url;
+
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const res = await fetchOnionOnce(current, host, port);
+
+    const isRedirect = [301, 302, 303, 307, 308].includes(res.statusCode);
+    if (!isRedirect || !res.location || hop === MAX_REDIRECTS) {
+      return { html: res.html, statusCode: res.statusCode };
+    }
+
+    current = new URL(res.location, current).toString();
+  }
+
+  throw new Error(`Exceeded ${MAX_REDIRECTS} redirects starting from ${url}`);
+}
+
+async function fetchOnionOnce(
+  url: string,
+  host = "127.0.0.1",
+  port = 9050,
+): Promise<{ html: string; statusCode: number; location?: string }> {
   validateOnionUrl(url);
   await torLimiter.acquire();
 
   const agent = createAgent(host, port);
+  // Onion addresses are self-authenticating, so the hidden service's TLS cert is
+  // frequently self-signed. The .onion key already provides the identity guarantee.
+  const client = new URL(url).protocol === "https:" ? https : http;
 
   return new Promise((resolve, reject) => {
-    const req = http.get(
+    const req = client.get(
       url,
       {
         agent,
         timeout: TOR_TIMEOUT_MS,
+        rejectUnauthorized: false,
         headers: {
           "User-Agent": TOR_USER_AGENT,
           Accept: "text/html,application/xhtml+xml,*/*",
@@ -125,7 +158,11 @@ export async function fetchOnion(
 
         res.on("end", () => {
           const html = Buffer.concat(chunks).toString("utf-8");
-          resolve({ html, statusCode: res.statusCode ?? 0 });
+          resolve({
+            html,
+            statusCode: res.statusCode ?? 0,
+            location: res.headers.location,
+          });
         });
 
         res.on("error", reject);
