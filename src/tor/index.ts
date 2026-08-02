@@ -46,6 +46,36 @@ const ahmiaSearchCache = new TTLCache<AhmiaResult[]>(5 * 60 * 1000); // 5 min
 const TOR_BULK_EXIT_LIST_URL = "https://check.torproject.org/torbulkexitlist";
 const TOR_EXIT_ADDRESSES_URL = "https://check.torproject.org/exit-addresses";
 const AHMIA_SEARCH_URL = "https://ahmia.fi/search/";
+const AHMIA_BASE_URL = "https://ahmia.fi/";
+
+// ─── Ahmia anti-bot form token ───
+
+/**
+ * Ahmia's search form carries a hidden input whose *name and value both rotate*
+ * per session. Requests to /search/ without it are redirected to the homepage,
+ * which is why a plain ?q= query silently returns zero results.
+ */
+async function fetchAhmiaFormToken(): Promise<{ name: string; value: string } | null> {
+  try {
+    const res = await fetch(AHMIA_BASE_URL, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
+        Accept: "text/html,application/xhtml+xml,*/*",
+        "Accept-Language": "en-US,en;q=0.5",
+      },
+    });
+    if (!res.ok) return null;
+
+    const $ = cheerio.load(await res.text());
+    const input = $("#searchForm input[type=hidden]").first();
+    const name = input.attr("name");
+    const value = input.attr("value");
+
+    return name && value ? { name, value } : null;
+  } catch {
+    return null;
+  }
+}
 
 // ─── 1. torStatus — Check if Tor SOCKS5 daemon is running ───
 
@@ -88,12 +118,21 @@ export async function torSearchOnion(
 
   await ahmiaLimiter.acquire();
 
-  const searchUrl = `${AHMIA_SEARCH_URL}?q=${encodeURIComponent(query)}`;
+  // Ahmia gates /search/ behind a rotating hidden form field. Without it the
+  // request 302s back to /. Name and value both change per session, so scrape
+  // them fresh from the homepage on every search.
+  const token = await fetchAhmiaFormToken();
+
+  const params = new URLSearchParams({ q: query });
+  if (token) params.set(token.name, token.value);
+
+  const searchUrl = `${AHMIA_SEARCH_URL}?${params.toString()}`;
   const response = await fetch(searchUrl, {
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
       Accept: "text/html,application/xhtml+xml,*/*",
       "Accept-Language": "en-US,en;q=0.5",
+      Referer: AHMIA_BASE_URL,
     },
   });
 
