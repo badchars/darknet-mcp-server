@@ -23,15 +23,27 @@ const cache = new TTLCache<unknown>(FIFTEEN_MIN);
 // ─── Types ───
 
 interface RansomwareVictim {
-  name: string;
-  group: string;
-  url: string;
-  country: string;
-  sector: string;
-  published: string;
-  discovered: string;
-  description: string;
-  website: string;
+  // current ransomware.live v2 field names
+  victim?: string;
+  activity?: string;
+  attackdate?: string;
+  claim_url?: string;
+  domain?: string;
+  data_size?: string | null;
+  infostealer?: unknown;
+  press?: string | null;
+  ransom?: number | null;
+  screenshot?: string | null;
+  // legacy field names (kept as fallbacks for older API responses)
+  name?: string;
+  group?: string;
+  url?: string;
+  country?: string;
+  sector?: string;
+  published?: string;
+  discovered?: string;
+  description?: string;
+  website?: string;
   [key: string]: unknown;
 }
 
@@ -119,15 +131,15 @@ export const ransomwareRecent: ToolDef = {
     return json({
       total: victims.length,
       victims: victims.map((v) => ({
-        name: v.name,
-        group: v.group,
-        country: v.country,
-        sector: v.sector,
-        published: v.published,
-        discovered: v.discovered,
-        description: v.description,
-        website: v.website,
-        url: v.url,
+        name: v.victim ?? v.name ?? "",
+        group: v.group ?? "",
+        country: v.country ?? "",
+        sector: v.activity ?? v.sector ?? "",
+        published: v.attackdate ?? v.published ?? "",
+        discovered: v.discovered ?? "",
+        description: v.description ?? "",
+        website: v.website ?? v.url ?? "",
+        url: v.url ?? v.claim_url ?? "",
       })),
     });
   },
@@ -196,14 +208,14 @@ export const ransomwareGroupVictims: ToolDef = {
       group: name,
       total: victims.length,
       victims: victims.map((v) => ({
-        name: v.name,
-        country: v.country,
-        sector: v.sector,
-        published: v.published,
-        discovered: v.discovered,
-        description: v.description,
-        website: v.website,
-        url: v.url,
+        name: v.victim ?? v.name ?? "",
+        country: v.country ?? "",
+        sector: v.activity ?? v.sector ?? "",
+        published: v.attackdate ?? v.published ?? "",
+        discovered: v.discovered ?? "",
+        description: v.description ?? "",
+        website: v.website ?? v.url ?? "",
+        url: v.url ?? v.claim_url ?? "",
       })),
     });
   },
@@ -228,15 +240,15 @@ export const ransomwareSearch: ToolDef = {
       keyword,
       total: results.length,
       victims: results.map((v) => ({
-        name: v.name,
-        group: v.group,
-        country: v.country,
-        sector: v.sector,
-        published: v.published,
-        discovered: v.discovered,
-        description: v.description,
-        website: v.website,
-        url: v.url,
+        name: v.victim ?? v.name ?? "",
+        group: v.group ?? "",
+        country: v.country ?? "",
+        sector: v.activity ?? v.sector ?? "",
+        published: v.attackdate ?? v.published ?? "",
+        discovered: v.discovered ?? "",
+        description: v.description ?? "",
+        website: v.website ?? v.url ?? "",
+        url: v.url ?? v.claim_url ?? "",
       })),
     });
   },
@@ -264,14 +276,14 @@ export const ransomwareByCountry: ToolDef = {
       country: code,
       total: victims.length,
       victims: victims.map((v) => ({
-        name: v.name,
-        group: v.group,
-        sector: v.sector,
-        published: v.published,
-        discovered: v.discovered,
-        description: v.description,
-        website: v.website,
-        url: v.url,
+        name: v.victim ?? v.name ?? "",
+        group: v.group ?? "",
+        sector: v.activity ?? v.sector ?? "",
+        published: v.attackdate ?? v.published ?? "",
+        discovered: v.discovered ?? "",
+        description: v.description ?? "",
+        website: v.website ?? v.url ?? "",
+        url: v.url ?? v.claim_url ?? "",
       })),
     });
   },
@@ -296,14 +308,14 @@ export const ransomwareBySector: ToolDef = {
       sector,
       total: victims.length,
       victims: victims.map((v) => ({
-        name: v.name,
-        group: v.group,
-        country: v.country,
-        published: v.published,
-        discovered: v.discovered,
-        description: v.description,
-        website: v.website,
-        url: v.url,
+        name: v.victim ?? v.name ?? "",
+        group: v.group ?? "",
+        country: v.country ?? "",
+        published: v.attackdate ?? v.published ?? "",
+        discovered: v.discovered ?? "",
+        description: v.description ?? "",
+        website: v.website ?? v.url ?? "",
+        url: v.url ?? v.claim_url ?? "",
       })),
     });
   },

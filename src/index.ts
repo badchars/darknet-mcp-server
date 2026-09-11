@@ -4,6 +4,10 @@ import type { ToolContext } from "./types/index.js";
 import { startMcpStdio } from "./protocol/mcp-server.js";
 import { allTools } from "./protocol/tools.js";
 import { checkTorStatus } from "./utils/tor-fetch.js";
+import { installProxySupport } from "./utils/proxy.js";
+
+// Honour HTTPS_PROXY/HTTP_PROXY/NO_PROXY before any outbound request is made
+installProxySupport();
 
 // ─── Build ToolContext from Environment ───
 
