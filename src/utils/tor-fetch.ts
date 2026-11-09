@@ -1,5 +1,6 @@
 import net from "node:net";
 import http from "node:http";
+import https from "node:https";
 import { SocksProxyAgent } from "socks-proxy-agent";
 import * as cheerio from "cheerio";
 import { RateLimiter } from "./rate-limiter.js";
@@ -26,6 +27,13 @@ export interface ScrapedPage {
   links: { href: string; text: string }[];
   bodyText: string;
   fetchTimeMs: number;
+}
+
+export interface TorHttpResponse {
+  url: string;
+  statusCode: number;
+  headers: http.IncomingHttpHeaders;
+  body: string;
 }
 
 // ─── Check Tor Status ───
@@ -85,20 +93,34 @@ function validateOnionUrl(url: string): void {
   }
 }
 
-// ─── Fetch Raw HTML from .onion ───
+// ─── Fetch any http(s) URL through the Tor SOCKS5 proxy ───
+// Generic transport: onion mirrors of clearnet sites are plain http://, and callers that
+// need the raw status/headers (e.g. token rejection is a 302) must not get redirects followed.
 
-export async function fetchOnion(
+export async function torHttpGet(
   url: string,
-  host = "127.0.0.1",
-  port = 9050,
-): Promise<{ html: string; statusCode: number }> {
-  validateOnionUrl(url);
+  options: { host?: string; port?: number; headers?: Record<string, string> } = {},
+): Promise<TorHttpResponse> {
+  const host = options.host ?? "127.0.0.1";
+  const port = options.port ?? 9050;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`Invalid URL: ${url}`);
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("Only http:// and https:// protocols are supported over Tor.");
+  }
+
   await torLimiter.acquire();
 
   const agent = createAgent(host, port);
+  const client = parsed.protocol === "https:" ? https : http;
 
   return new Promise((resolve, reject) => {
-    const req = http.get(
+    const req = client.get(
       url,
       {
         agent,
@@ -108,6 +130,7 @@ export async function fetchOnion(
           Accept: "text/html,application/xhtml+xml,*/*",
           "Accept-Language": "en-US,en;q=0.5",
           Referer: "",
+          ...options.headers,
         },
       },
       (res) => {
@@ -124,8 +147,12 @@ export async function fetchOnion(
         });
 
         res.on("end", () => {
-          const html = Buffer.concat(chunks).toString("utf-8");
-          resolve({ html, statusCode: res.statusCode ?? 0 });
+          resolve({
+            url,
+            statusCode: res.statusCode ?? 0,
+            headers: res.headers,
+            body: Buffer.concat(chunks).toString("utf-8"),
+          });
         });
 
         res.on("error", reject);
@@ -147,6 +174,18 @@ export async function fetchOnion(
       req.destroy(new Error(`Tor request timed out after ${TOR_TIMEOUT_MS}ms`));
     });
   });
+}
+
+// ─── Fetch Raw HTML from .onion ───
+
+export async function fetchOnion(
+  url: string,
+  host = "127.0.0.1",
+  port = 9050,
+): Promise<{ html: string; statusCode: number }> {
+  validateOnionUrl(url);
+  const response = await torHttpGet(url, { host, port });
+  return { html: response.body, statusCode: response.statusCode };
 }
 
 // ─── Scrape .onion Page (parsed) ───

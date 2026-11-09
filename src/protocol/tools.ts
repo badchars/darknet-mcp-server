@@ -132,7 +132,7 @@ const torTools: ToolDef[] = [
   {
     name: "tor_search_onion",
     description:
-      "Search for .onion sites using Ahmia.fi search engine. Returns titles, URLs, and descriptions of matching hidden services.",
+      "Search for .onion sites using Ahmia (its .onion mirror is queried through Tor first, clearnet only as fallback; tune with the AHMIA_VIA env var). Returns titles, URLs, and descriptions of matching hidden services. A transport failure is reported as an error, never as an empty list.",
     schema: {
       query: z.string().describe("Search query"),
       limit: z.number().optional().default(20).describe("Max results (default 20)"),
