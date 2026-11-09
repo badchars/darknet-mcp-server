@@ -45,7 +45,80 @@ const ahmiaSearchCache = new TTLCache<AhmiaResult[]>(5 * 60 * 1000); // 5 min
 
 const TOR_BULK_EXIT_LIST_URL = "https://check.torproject.org/torbulkexitlist";
 const TOR_EXIT_ADDRESSES_URL = "https://check.torproject.org/exit-addresses";
+const AHMIA_HOME_URL = "https://ahmia.fi/";
 const AHMIA_SEARCH_URL = "https://ahmia.fi/search/";
+const AHMIA_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 h (SearXNG uses the same window)
+const AHMIA_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
+  Accept: "text/html,application/xhtml+xml,*/*",
+  "Accept-Language": "en-US,en;q=0.5",
+};
+
+// ─── Ahmia anti-bot token ───
+// Ahmia's search form carries a hidden, rotating input (e.g. a0f4b5=f4d770). Without it the
+// search endpoint answers 302 → "/" and a client that follows redirects gets the homepage,
+// parses zero results and reports an empty list: a silent false negative. Fetch the token from
+// the form and send it with the query (same approach as searx/engines/ahmia.py).
+
+interface AhmiaToken {
+  name: string;
+  value: string;
+  fetchedAt: number;
+}
+
+let ahmiaToken: AhmiaToken | null = null;
+
+async function fetchAhmiaToken(): Promise<AhmiaToken> {
+  await ahmiaLimiter.acquire();
+  const response = await fetch(AHMIA_HOME_URL, { headers: AHMIA_HEADERS });
+  if (!response.ok) {
+    throw new Error(`Ahmia token fetch failed: HTTP ${response.status} ${response.statusText}`);
+  }
+
+  const $ = cheerio.load(await response.text());
+  const input = $("#searchForm input[type='hidden']").first();
+  const name = input.attr("name");
+  const value = input.attr("value");
+  if (!name || !value) {
+    throw new Error(
+      "Ahmia token not found in search form: the page layout changed, search is not reliable",
+    );
+  }
+
+  ahmiaToken = { name, value, fetchedAt: Date.now() };
+  return ahmiaToken;
+}
+
+async function getAhmiaToken(forceRefresh = false): Promise<AhmiaToken> {
+  if (!forceRefresh && ahmiaToken && Date.now() - ahmiaToken.fetchedAt < AHMIA_TOKEN_TTL_MS) {
+    return ahmiaToken;
+  }
+  return fetchAhmiaToken();
+}
+
+async function requestAhmiaSearch(
+  query: string,
+  token: AhmiaToken,
+): Promise<{ html: string; rejected: boolean }> {
+  await ahmiaLimiter.acquire();
+
+  const params = new URLSearchParams({ q: query, [token.name]: token.value });
+  const response = await fetch(`${AHMIA_SEARCH_URL}?${params.toString()}`, {
+    headers: AHMIA_HEADERS,
+    redirect: "manual",
+  });
+
+  // Expired/invalid token: Ahmia answers 302 → "/". Never follow it (that is what produced
+  // the silent empty results).
+  if (response.status >= 300 && response.status < 400) {
+    return { html: "", rejected: true };
+  }
+  if (!response.ok) {
+    throw new Error(`Ahmia search failed: HTTP ${response.status} ${response.statusText}`);
+  }
+
+  return { html: await response.text(), rejected: false };
+}
 
 // ─── 1. torStatus — Check if Tor SOCKS5 daemon is running ───
 
@@ -86,23 +159,26 @@ export async function torSearchOnion(
   const cached = ahmiaSearchCache.get(cacheKey);
   if (cached) return cached.slice(0, limit);
 
-  await ahmiaLimiter.acquire();
+  let token = await getAhmiaToken();
+  let attempt = await requestAhmiaSearch(query, token);
 
-  const searchUrl = `${AHMIA_SEARCH_URL}?q=${encodeURIComponent(query)}`;
-  const response = await fetch(searchUrl, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0",
-      Accept: "text/html,application/xhtml+xml,*/*",
-      "Accept-Language": "en-US,en;q=0.5",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Ahmia search failed: HTTP ${response.status} ${response.statusText}`);
+  // The token rotates: refresh once and retry before declaring failure.
+  if (attempt.rejected) {
+    token = await getAhmiaToken(true);
+    attempt = await requestAhmiaSearch(query, token);
+    if (attempt.rejected) {
+      throw new Error(
+        "Ahmia rejected the search token twice: search is unavailable (this is NOT 'no results')",
+      );
+    }
   }
 
-  const html = await response.text();
-  const $ = cheerio.load(html);
+  const $ = cheerio.load(attempt.html);
+
+  // A page without the search form is not a results page: fail loudly instead of returning [].
+  if ($("#searchForm").length === 0) {
+    throw new Error("Ahmia returned a page without the search form: layout changed, results unreliable");
+  }
   const results: AhmiaResult[] = [];
 
   // Ahmia search results are in <li class="result"> elements
